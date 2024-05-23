@@ -1,3 +1,5 @@
+#pip install streamlit yfinance pandas numpy scikit-learn xgboost optuna plotly
+
 import streamlit as st
 import yfinance as yf
 import pandas as pd
