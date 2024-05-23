@@ -1,5 +1,4 @@
 #pip install streamlit yfinance pandas numpy scikit-learn xgboost optuna plotly
-
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -12,11 +11,11 @@ import optuna
 
 st.set_page_config(page_title="Stock Prediction App", layout="wide")
 
-st.title("Stock Prediction and Portfolio Tracker")
+st.title("Stock Prediction App")
 
 # Top 50 stocks list
 top_50_stocks = [
-    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'FB', 'NVDA', 'BRK-B', 'JPM', 'JNJ', 
+    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'BRK-B', 'JPM', 'JNJ', 
     'V', 'PG', 'UNH', 'HD', 'MA', 'DIS', 'PYPL', 'BAC', 'VZ', 'ADBE', 
     'CMCSA', 'NFLX', 'KO', 'PFE', 'T', 'PEP', 'XOM', 'CSCO', 'MRK', 'ABT', 
     'INTC', 'CVX', 'NKE', 'WMT', 'LLY', 'TMO', 'ORCL', 'MDT', 'ACN', 'HON', 
@@ -74,25 +73,9 @@ def optimize_hyperparameters(X_train, y_train):
 
 # Sidebar for user inputs
 st.sidebar.header("Stock Prediction")
-selected_ticker = st.sidebar.text_input("Enter stock ticker (e.g., AAPL):", value="AAPL")
+selected_ticker = st.sidebar.selectbox("Select stock ticker:", options=top_50_stocks, index=top_50_stocks.index("AAPL"))
 start_date = st.sidebar.date_input("Start date:", value=pd.to_datetime("2020-01-01"))
 end_date = st.sidebar.date_input("End date:", value=pd.to_datetime("2023-01-01"))
-
-# Add buttons for top 50 stocks
-st.sidebar.subheader("Top 50 Stocks")
-col1, col2 = st.sidebar.columns(2)
-for i, ticker in enumerate(top_50_stocks):
-    if i % 2 == 0:
-        if col1.button(ticker):
-            selected_ticker = ticker
-    else:
-        if col2.button(ticker):
-            selected_ticker = ticker
-
-# Portfolio tracker
-st.sidebar.header("Portfolio Tracker")
-portfolio = st.sidebar.text_area("Enter your portfolio tickers (comma-separated):")
-portfolio_list = [stock.strip().upper() for stock in portfolio.split(',')] if portfolio else []
 
 if st.sidebar.button("Predict"):
     # Fetch and prepare data
@@ -135,18 +118,3 @@ if st.sidebar.button("Predict"):
         # Plot historical data
         fig = px.line(data, x=data.index, y='Close', title=f'{selected_ticker} Historical Prices')
         st.plotly_chart(fig)
-
-# Display portfolio and live updates
-if portfolio_list:
-    st.header("Portfolio Tracker")
-    portfolio_data = []
-    for stock in portfolio_list:
-        live_data = fetch_live_data(stock)
-        if not live_data.empty:
-            current_price = live_data['Close'].iloc[-1]
-            portfolio_data.append({'Ticker': stock, 'Current Price': current_price})
-        else:
-            portfolio_data.append({'Ticker': stock, 'Current Price': 'N/A'})
-    
-    portfolio_df = pd.DataFrame(portfolio_data)
-    st.table(portfolio_df)
